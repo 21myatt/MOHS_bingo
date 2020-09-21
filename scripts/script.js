@@ -50,6 +50,8 @@ let bingoCount = 0;
     return obj;
   }));
 
+  const text = await Scene.root.findFirst('3dText0');
+  text.hidden = true;
 
   planes.map((plane, i) => {
     plane.hidden.monitor().subscribe(({ newValue }) => {
@@ -60,6 +62,7 @@ let bingoCount = 0;
 
         let isPatternFound = false;
         let foundPatterns = [];
+        Patches.inputs.setBoolean('bingoed', false);
 
         Object.entries(patternDict).map(([key, pattern], idx) => {
           let matchedItemCount = 0;
@@ -78,7 +81,14 @@ let bingoCount = 0;
 
         if (foundPatterns.length) {
           bingoCount += foundPatterns.length;
-          Patches.inputs.setScalar('bingoCount', bingoCount);
+          Patches.inputs.setBoolean('bingoed', true);
+
+          text.hidden = false;
+          if (bingoCount === 1) {
+            text.text = 'Bingo';
+          } else {
+            text.text = `${bingoCount}x Bingo`;
+          }
 
           for (let j of foundPatterns) {
             delete patternDict[j];
